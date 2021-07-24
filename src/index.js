@@ -56,6 +56,34 @@ app.get('/users/:id' , async (req , res) =>{
 }
 )
 
+//update user
+app.patch('/users/:id' , async (req , res) =>{
+
+    const updates = Object.keys(req.body)
+    const allowedUpdates = ['name' , 'email' , 'password' , 'age']
+
+    //this checks if the properties client wants to update are allowed to update or not
+    const isValidOperation = updates.every(
+        (update) => allowedUpdates.includes(update)
+    )
+
+    if(!isValidOperation){
+        return res.status(400).send({'Error' : 'Cannot update  attribute'})
+    }
+
+    try{
+        const user = await User.findByIdAndUpdate(req.params.id , req.body , {new : true , runValidators : true})
+        if(!user){
+            return res.status(404).send()
+        }
+        return res.status(201).send(user)
+    }
+    catch(e){
+        res.send(500).send()
+    }
+}
+)
+
 //-------------------------------------User endpoints-----------------------------------------------------------------------------------------------
 
 
@@ -64,15 +92,6 @@ app.get('/users/:id' , async (req , res) =>{
 //post task
 app.post('/tasks' , async (req , res) => {
     const task = Task(req.body)
-    // task.save().then(
-    //     (task) =>{
-    //         res.send(task)
-    //     }
-    // ).catch(
-    //     (e) =>{
-    //         res.status(400).send(e)
-    //     }
-    // )
     try{
         await task.save()
         res.status(201).send(task)
@@ -83,15 +102,6 @@ app.post('/tasks' , async (req , res) => {
 
 //read all tasks
 app.get('/tasks' , async (req , res) => {
-    // Task.find({}).then(
-    //     (tasks) =>{
-    //         res.send(tasks)
-    //     }
-    // ).catch(
-    //     (e) =>{
-    //         res.status(500).send()
-    //     }
-    // )
     try{
         const tasks = await Task.find({})
         res.status(201).send(tasks)
@@ -106,18 +116,6 @@ app.get('/tasks' , async (req , res) => {
 //:id means that it is a placeholder for dynamic values (here task id will be placed) which can be accessed by req.params.id
 app.get('/tasks/:id' , async (req , res) =>{
     const _id = req.params.id
-    // Task.findById(_id).then(
-    //     (task) =>{
-    //         if(!task){
-    //             return res.status(404).send()
-    //         }
-    //         res.send(task)
-    //     }
-    // ).catch(
-    //     (e) =>{
-    //         res.status(500).send(e)
-    //     }
-    // )
     try{
         const task = await Task.findById(_id)
         if(!task){
@@ -129,6 +127,33 @@ app.get('/tasks/:id' , async (req , res) =>{
         res.status(500).send()
     }
 })
+
+//update task
+app.patch('/tasks/:id' , async (req , res) => {
+    
+    const updates = Object.keys(req.body)
+    const allowedUpdates = ['description' , 'completed']
+
+    const isValidOperation = updates.every(
+        (update) => allowedUpdates.includes(update)
+    )
+    
+    if(!isValidOperation){
+        return res.status(400).send({'Error' : 'Cannot update attribute'})
+    }
+    
+    try{
+        const task = await Task.findByIdAndUpdate(req.params.id , req.body , {new : true , runValidators : true})
+        if(!task){
+            return res.status(404).send()
+        }
+        return res.status(201).send(task)
+    }
+    catch(e){
+        res.status(500).send(e)
+    }
+}
+)
 
 
 //-------------------------------------Task endpoints-----------------------------------------------------------------------------------------------
