@@ -58,7 +58,6 @@ app.get('/users/:id' , async (req , res) =>{
 
 //update user
 app.patch('/users/:id' , async (req , res) =>{
-
     const updates = Object.keys(req.body)
     const allowedUpdates = ['name' , 'email' , 'password' , 'age']
 
@@ -68,7 +67,7 @@ app.patch('/users/:id' , async (req , res) =>{
     )
 
     if(!isValidOperation){
-        return res.status(400).send({'Error' : 'Cannot update  attribute'})
+        return res.status(400).send({'Error' : 'Invalid Updates'})
     }
 
     try{
@@ -83,6 +82,19 @@ app.patch('/users/:id' , async (req , res) =>{
     }
 }
 )
+
+app.delete('/users/:id' , async (req , res) => {
+    try{
+        const user = await User.findByIdAndDelete(req.params.id)
+        if(!user){
+            return res.status(404).send()
+        }
+        return res.status(201).send(user)
+    }
+    catch(e){
+        return res.status(500).send(e)
+    }
+})
 
 //-------------------------------------User endpoints-----------------------------------------------------------------------------------------------
 
@@ -130,18 +142,18 @@ app.get('/tasks/:id' , async (req , res) =>{
 
 //update task
 app.patch('/tasks/:id' , async (req , res) => {
-    
     const updates = Object.keys(req.body)
     const allowedUpdates = ['description' , 'completed']
 
+    //this checks if the properties client wants to update are allowed to update or not
     const isValidOperation = updates.every(
         (update) => allowedUpdates.includes(update)
     )
     
     if(!isValidOperation){
-        return res.status(400).send({'Error' : 'Cannot update attribute'})
+        return res.status(400).send({'Error' : 'Invalid Updates'})
     }
-    
+
     try{
         const task = await Task.findByIdAndUpdate(req.params.id , req.body , {new : true , runValidators : true})
         if(!task){
@@ -155,6 +167,19 @@ app.patch('/tasks/:id' , async (req , res) => {
 }
 )
 
+app.delete('/tasks/:id' , async (req , res) => {
+    try{
+        const task = await Task.findByIdAndDelete(req.params.id)
+        if(!task){
+            print(console.log(task))
+            return res.status(404).send()
+        }
+        return res.status(201).send(task)
+    }
+    catch(e){
+        return res.status(500).send(e)
+    }
+})
 
 //-------------------------------------Task endpoints-----------------------------------------------------------------------------------------------
 
