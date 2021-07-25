@@ -59,7 +59,17 @@ router.patch('/tasks/:id' , async (req , res) => {
     }
 
     try{
-        const task = await Task.findByIdAndUpdate(req.params.id , req.body , {new : true , runValidators : true})
+        //findIdAndUpdate function ignores middleware functions and directly update in db.
+        //but since we are writing code for hasing passwords in middle we need it to run. 
+        //So instead of usingan advanced function we will do it manually.
+        // const task = await Task.findByIdAndUpdate(req.params.id , req.body , {new : true , runValidators : true})
+
+        const task = await Task.findById(req.params.id)
+        updates.forEach(
+            (update) => task[update] = req.body[update]
+        )
+        task.save()
+
         if(!task){
             return res.status(404).send()
         }
