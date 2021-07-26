@@ -24,6 +24,7 @@ const userSchema = new mongoose.Schema(
             type : String,
             trim : true,
             required: true,
+            unique : true,
             lowercase : true,
             validate(value){
                 if(!validator.isEmail(value)){
@@ -47,6 +48,8 @@ const userSchema = new mongoose.Schema(
 
 //middleware
 // for middle we use normal functions since we require 'this' keyword here and there is no 'this' binding in arrow functions .
+
+//function for hashing plain text password
 userSchema.pre('save' , async function (){
     const user = this
     //only update password if its modified in post or patch request.
@@ -54,6 +57,19 @@ userSchema.pre('save' , async function (){
         user.password = await bcrypt.hash(user.password , 8)
     }
 })
+
+//function for logging user in
+userSchema.statics.findByCredentials = async  (email , password) => {
+    const user = await User.findOne({email})
+    if(!user){
+        throw new Error('Unable to Login')    
+    }
+    const isMatch = bcrypt.compare(password , user.password)
+    if(!isMatch){
+        throw new Error('Unable to Login')
+    }
+    return user
+}
 
 //User Model
 const User = mongoose.model('User' , userSchema)
