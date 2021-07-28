@@ -20,7 +20,7 @@ router.post('/tasks' , async (req , res) => {
 router.get('/tasks' , async (req , res) => {
     try{
         const tasks = await Task.find({})
-        res.status(201).send(tasks)
+        res.send(tasks)
     }
     catch(e){
         res.status(500).send(e)
@@ -37,7 +37,7 @@ router.get('/tasks/:id' , async (req , res) =>{
         if(!task){
             return res.send(404).send()
         }
-        return res.status(201).send(task)
+        return res.send(task)
     }
     catch(e){
         res.status(500).send()
@@ -73,7 +73,7 @@ router.patch('/tasks/:id' , async (req , res) => {
         if(!task){
             return res.status(404).send()
         }
-        return res.status(201).send(task)
+        return res.send(task)
     }
     catch(e){
         res.status(500).send(e)
@@ -89,7 +89,7 @@ router.delete('/tasks/:id' , async (req , res) => {
             print(console.log(task))
             return res.status(404).send()
         }
-        return res.status(201).send(task)
+        return res.send(task)
     }
     catch(e){
         return res.status(500).send(e)

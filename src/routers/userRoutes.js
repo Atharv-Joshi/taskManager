@@ -17,6 +17,7 @@ router.post('/users' , async (req , res) => {
     }
 })
 
+//login
 router.post('/users/login' , async (req, res) =>{
     try{
         const user = await User.findByCredentials(req.body.email , req.body.password)
@@ -27,6 +28,31 @@ router.post('/users/login' , async (req, res) =>{
         res.status(400).send()
     }
 })
+
+//logout from current session
+router.post('/users/logout' , auth , (req , res) => {
+    try{
+        req.user.tokens = req.user.tokens.filter(
+            (token) => token.token !== req.token
+        )
+        req.user.save()
+        res.send()
+    }catch(e){
+        res.status(500).send()
+    }
+})
+
+//logout from all sessions
+router.post('/users/logoutall' , auth , (req , res) => {
+    try{
+        req.user.tokens = []
+        req.user.save()
+        res.send()
+    }catch(e){
+        res.status(500).send()
+    }
+})
+
 
 //read all users
 router.get('/users/me' , auth ,  async (req , res) => {
@@ -42,7 +68,7 @@ router.get('/users/:id' , async (req , res) =>{
         if(!user){
             return res.status(404).send()
         }
-        return res.status(201).send(user)
+        return res.send(user)
     }
     catch(e){
         res.status(500).send(e)
@@ -79,7 +105,7 @@ router.patch('/users/:id' , async (req , res) =>{
         if(!user){
             return res.status(404).send()
         }
-        return res.status(201).send(user)
+        return res.send(user)
     }
     catch(e){
         res.send(500).send()
@@ -93,7 +119,7 @@ router.delete('/users/:id' , async (req , res) => {
         if(!user){
             return res.status(404).send()
         }
-        return res.status(201).send(user)
+        return res.send(user)
     }
     catch(e){
         return res.status(500).send(e)
