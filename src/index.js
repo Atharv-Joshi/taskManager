@@ -17,6 +17,11 @@ const app = express()
 //specifying port
 const port = process.env.PORT || 3000
 
+//This code makes the middleware function run for all incoming routes.
+// app.use((req,res,next) =>{
+//     res.status(503).send('Site Under Maintainance')
+// })
+
 //express. json() is a method inbuilt in express to recognize the incoming Request Object as a JSON Object
 //if not written then incoming object is indentified as undefined.
 app.use(express.json())
