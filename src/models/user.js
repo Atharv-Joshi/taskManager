@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const Task = require('../models/task')
 
 //User schema
 const userSchema = new mongoose.Schema(
@@ -55,6 +56,13 @@ const userSchema = new mongoose.Schema(
     }
 )
 
+//virtual relationsships
+userSchema.virtual('tasks' , {
+    ref : 'Task',
+    localField : '_id',
+    foreignField : 'user'
+})
+
 //middleware
 // for middle we use normal functions since we require 'this' keyword here and there is no 'this' binding in arrow functions .
 
@@ -65,6 +73,13 @@ userSchema.pre('save' , async function (){
     if(user.isModified('password')){
         user.password = await bcrypt.hash(user.password , 8)
     }
+})
+
+//function for deleting all tasks if a user is deleted
+userSchema.pre('remove' , async function (next){
+    const user = this
+    await Task.deleteMany({user : user._id})
+    next()
 })
 
 //function for logging user in
