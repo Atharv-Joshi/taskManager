@@ -53,6 +53,8 @@ const userSchema = new mongoose.Schema(
                 }
             }
         ]
+    },{
+        timestamps : true
     }
 )
 
@@ -61,7 +63,8 @@ userSchema.virtual('tasks' , {
     ref : 'Task',
     localField : '_id',
     foreignField : 'user'
-})
+}
+)
 
 //middleware
 // for middle we use normal functions since we require 'this' keyword here and there is no 'this' binding in arrow functions .
