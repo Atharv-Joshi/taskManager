@@ -2,6 +2,7 @@ const express = require('express')
 const User = require('../models/user')
 const auth = require('../middleware/auth')
 const multer = require('multer')
+const sharp = require('sharp')
 
 const router = new express.Router()
 const upload = new multer({
@@ -69,7 +70,8 @@ router.post('/users/logoutall' , auth , (req , res) => {
 
 //upload profile pic
 router.post('/users/me/avatar', auth ,  upload.single('avatar') , async (req , res) => {
-    req.user.avatar = req.file.buffer
+    const buffer = await sharp(req.file.buffer).png().resize({height : 250 , width : 250}).toBuffer()
+    req.user.avatar = buffer
     await req.user.save()
     res.send()
 } , 
@@ -83,6 +85,20 @@ router.get('/users/me' , auth ,  async (req , res) => {
     res.send(req.user)
 })
 
+//get profile picture
+router.get('/users/:id/avatar' , async (req , res) =>{
+    try{
+        const user = await User.findById(req.params.id)
+        if(!user || !user.avatar){
+            throw new Error()
+        }
+        res.set('Content-Type','image/png')
+        res.send(user.avatar)
+    }
+    catch(e){
+        res.status(404).send()
+    }
+})
 
 
 //update user
@@ -120,6 +136,7 @@ router.patch('/users/me' , auth , async (req , res) =>{
 }
 )
 
+//delete profile
 router.delete('/users/me' , auth , async (req , res) => {
     try{
         await req.user.remove()
@@ -130,6 +147,7 @@ router.delete('/users/me' , auth , async (req , res) => {
     }
 })
 
+//delete profile picture
 router.delete('/users/me/avatar' , auth , async (req , res)=>{
     req.user.avatar = undefined
     await req.user.save()
