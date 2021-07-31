@@ -5,7 +5,8 @@ const multer = require('multer')
 
 const router = new express.Router()
 const upload = new multer({
-    dest : 'avatars',
+    //if destination isnt provided to upload object then the image in request is forwarded to the function which executes for that route.
+    // dest : 'avatars',
     limits : { 
         fileSize : 1000000,
     },
@@ -67,8 +68,14 @@ router.post('/users/logoutall' , auth , (req , res) => {
 })
 
 //upload profile pic
-router.post('/users/me/avatar' , upload.single('avatar') , (req , res) => {
+router.post('/users/me/avatar', auth ,  upload.single('avatar') , async (req , res) => {
+    req.user.avatar = req.file.buffer
+    await req.user.save()
     res.send()
+} , 
+//this function runs if there are errors in middle wre function (here file filter)
+(error , req , res , next) => {
+    res.status(400).send(error.message)
 } )
 
 //read profile
@@ -121,6 +128,13 @@ router.delete('/users/me' , auth , async (req , res) => {
     catch(e){
         return res.status(500).send(e)
     }
+})
+
+router.delete('/users/me/avatar' , auth , async (req , res)=>{
+    req.user.avatar = undefined
+    await req.user.save()
+    res.send()
+
 })
 
 //-------------------------------------User endpoints-----------------------------------------------------------------------------------------------
