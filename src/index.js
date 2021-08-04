@@ -15,7 +15,7 @@ const Task = require('./models/task')
 const app = express()
 
 //specifying port
-const port = process.env.PORT || 3000
+const port = process.env.PORT
 
 //This code makes the middleware function run for all incoming routes.
 // app.use((req,res,next) =>{

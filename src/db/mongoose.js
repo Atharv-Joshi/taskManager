@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 //connect server to database
-mongoose.connect('mongodb://127.0.0.1:27017/task-manager' , {
+mongoose.connect(process.env.MONGODB_URL , {
     useCreateIndex : true,
     useNewUrlParser : true,
     useUnifiedTopology: true
